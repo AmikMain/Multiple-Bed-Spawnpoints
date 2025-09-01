@@ -50,6 +50,8 @@ public class MultipleBedSpawnpoints
         event.addCapability(PlayerSpawnProvider.IDENTIFIER, new PlayerSpawnProvider());
     }
 
+
+
     private void commonSetup(final FMLCommonSetupEvent event)
     {
 

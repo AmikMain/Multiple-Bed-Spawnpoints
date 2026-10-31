@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionList.Row> {
@@ -88,7 +89,8 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
             int nameWidth = getRowWidth() - BUTTONS_WIDTH - BUTTON_GAP - 2;
             this.nameBox = new EditBox(font, nameWidth, 18, Component.translatable("gui.multiplebedspawnpoints.name"));
             this.nameBox.setMaxLength(BedEntry.MAX_NAME_LENGTH);
-            this.nameBox.setHint(Component.translatable("gui.multiplebedspawnpoints.default_name", number));
+            String defaultName = bed.isAnchor() ? "gui.multiplebedspawnpoints.default_anchor_name" : "gui.multiplebedspawnpoints.default_name";
+            this.nameBox.setHint(Component.translatable(defaultName, number));
             showName(bed.name());
             this.respawnButton = Button.builder(Component.translatable("gui.multiplebedspawnpoints.respawn"), button -> respawn())
                     .size(RESPAWN_BUTTON_WIDTH, 20)
@@ -142,14 +144,28 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
         }
 
         private Component locationText() {
-            ResourceLocation dimension = this.bed.location().dimension().location();
+            BedView.Place place = this.bed.place();
+            ResourceLocation dimension = place.location().dimension().location();
             String key = "dimension." + dimension.getNamespace() + "." + dimension.getPath();
-            BlockPos pos = this.bed.location().pos();
-            return Component.translatable("gui.multiplebedspawnpoints.location",
-                    Component.translatableWithFallback(key, dimension.toString()), pos.getX(), pos.getY(), pos.getZ());
+            Component dimensionName = Component.translatableWithFallback(key, dimension.toString());
+            if (!place.subLevelName().isEmpty()) {
+                return Component.translatable("gui.multiplebedspawnpoints.location_sub_level", dimensionName, place.subLevelName());
+            }
+
+            BlockPos pos = place.location().pos();
+            return Component.translatable("gui.multiplebedspawnpoints.location", dimensionName, pos.getX(), pos.getY(), pos.getZ());
+        }
+
+        private Component chargeText() {
+            Object charge = this.bed.charge() == BedView.CHARGE_UNKNOWN ? "?" : this.bed.charge();
+            return Component.translatable("gui.multiplebedspawnpoints.charge", charge, RespawnAnchorBlock.MAX_CHARGES)
+                    .withStyle(ChatFormatting.YELLOW);
         }
 
         private Component statusText() {
+            if (this.bed.charge() == 0) {
+                return Component.translatable("gui.multiplebedspawnpoints.status.no_charge").withStyle(ChatFormatting.RED);
+            }
             if (this.bed.obstructed()) {
                 return Component.translatable("gui.multiplebedspawnpoints.status.obstructed").withStyle(ChatFormatting.RED);
             }
@@ -169,14 +185,19 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
             this.nameBox.render(guiGraphics, mouseX, mouseY, partialTick);
 
             this.respawnButton.setPosition(left + width - BUTTONS_WIDTH, top + 1);
-            this.respawnButton.active = BedSelectionList.this.screen.canRespawn() && !this.bed.obstructed() && this.cooldownTicks <= 0;
+            this.respawnButton.active = BedSelectionList.this.screen.canRespawn()
+                    && !this.bed.obstructed() && this.cooldownTicks <= 0 && this.bed.charge() != 0;
             this.respawnButton.render(guiGraphics, mouseX, mouseY, partialTick);
 
             this.deleteButton.setPosition(left + width - DELETE_BUTTON_WIDTH, top + 1);
             this.deleteButton.render(guiGraphics, mouseX, mouseY, partialTick);
 
             guiGraphics.drawString(font, locationText(), left + 2, top + 24, 0xFFAAAAAA);
-            guiGraphics.drawString(font, statusText(), left + 2, top + 35, 0xFFFFFFFF);
+            Component status = statusText();
+            guiGraphics.drawString(font, status, left + 2, top + 35, 0xFFFFFFFF);
+            if (this.bed.isAnchor()) {
+                guiGraphics.drawString(font, chargeText(), left + 2 + font.width(status) + 10, top + 35, 0xFFFFFFFF);
+            }
         }
 
         @Override

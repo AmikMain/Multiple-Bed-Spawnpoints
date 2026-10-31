@@ -56,6 +56,10 @@ public class PlayerBeds {
         return beds.removeIf(bed -> bed.id().equals(id));
     }
 
+    public void replace(BedEntry updated) {
+        beds.replaceAll(bed -> bed.id().equals(updated.id()) ? updated : bed);
+    }
+
     public void rename(UUID id, String name) {
         beds.replaceAll(bed -> bed.id().equals(id) ? bed.withName(name) : bed);
     }

@@ -31,6 +31,7 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
     private static final int RESPAWN_BUTTON_WIDTH = 90;
     private static final int DELETE_BUTTON_WIDTH = 60;
     private static final int BUTTON_GAP = 4;
+    private static final int BUTTONS_WIDTH = RESPAWN_BUTTON_WIDTH + BUTTON_GAP + DELETE_BUTTON_WIDTH;
 
     private final BedListScreen screen;
 
@@ -82,10 +83,13 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
 
         private Row(BedView bed, int number) {
             Font font = BedSelectionList.this.minecraft.font;
-            this.nameBox = new EditBox(font, 0, 18, Component.translatable("gui.multiplebedspawnpoints.name"));
+            // The box needs its real width before setValue: scrolling to the cursor in a zero-width box
+            // leaves no visible text, and EditBox then draws the hint over the actual name.
+            int nameWidth = getRowWidth() - BUTTONS_WIDTH - BUTTON_GAP - 2;
+            this.nameBox = new EditBox(font, nameWidth, 18, Component.translatable("gui.multiplebedspawnpoints.name"));
             this.nameBox.setMaxLength(BedEntry.MAX_NAME_LENGTH);
             this.nameBox.setHint(Component.translatable("gui.multiplebedspawnpoints.default_name", number));
-            this.nameBox.setValue(bed.name());
+            showName(bed.name());
             this.respawnButton = Button.builder(Component.translatable("gui.multiplebedspawnpoints.respawn"), button -> respawn())
                     .size(RESPAWN_BUTTON_WIDTH, 20)
                     .build();
@@ -102,8 +106,13 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
             this.savedName = bed.name();
             this.cooldownTicks = bed.cooldownTicks();
             if (!this.nameBox.isFocused()) {
-                this.nameBox.setValue(bed.name());
+                showName(bed.name());
             }
+        }
+
+        private void showName(String name) {
+            this.nameBox.setValue(name);
+            this.nameBox.moveCursorToStart(false);
         }
 
         private void tick() {
@@ -155,13 +164,11 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
         @Override
         public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
             Font font = BedSelectionList.this.minecraft.font;
-            int buttonsWidth = RESPAWN_BUTTON_WIDTH + BUTTON_GAP + DELETE_BUTTON_WIDTH;
 
             this.nameBox.setPosition(left + 1, top + 2);
-            this.nameBox.setWidth(width - buttonsWidth - BUTTON_GAP - 2);
             this.nameBox.render(guiGraphics, mouseX, mouseY, partialTick);
 
-            this.respawnButton.setPosition(left + width - buttonsWidth, top + 1);
+            this.respawnButton.setPosition(left + width - BUTTONS_WIDTH, top + 1);
             this.respawnButton.active = BedSelectionList.this.screen.canRespawn() && !this.bed.obstructed() && this.cooldownTicks <= 0;
             this.respawnButton.render(guiGraphics, mouseX, mouseY, partialTick);
 

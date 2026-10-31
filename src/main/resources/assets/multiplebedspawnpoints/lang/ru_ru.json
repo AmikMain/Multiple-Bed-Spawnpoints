@@ -1,0 +1,33 @@
+{
+  "multiplebedspawnpoints.configuration.title": "Multiple Bed Spawnpoints",
+  "multiplebedspawnpoints.configuration.section.multiplebedspawnpoints.server.toml": "Настройки сервера",
+  "multiplebedspawnpoints.configuration.section.multiplebedspawnpoints.server.toml.title": "Настройки сервера",
+  "multiplebedspawnpoints.configuration.respawnCooldownSeconds": "Кулдаун возрождения (секунды)",
+  "multiplebedspawnpoints.configuration.maxBeds": "Максимум кроватей",
+
+  "key.categories.multiplebedspawnpoints": "Multiple Bed Spawnpoints",
+  "key.multiplebedspawnpoints.open_bed_list": "Открыть список кроватей",
+
+  "message.multiplebedspawnpoints.bed_added": "Кровать добавлена в список возрождения (%s/%s)",
+  "message.multiplebedspawnpoints.bed_limit": "Достигнут лимит кроватей (%s)",
+  "message.multiplebedspawnpoints.bed_missing": "Этой кровати больше нет в списке",
+  "message.multiplebedspawnpoints.bed_on_cooldown": "Кровать ещё на кулдауне",
+  "message.multiplebedspawnpoints.bed_destroyed": "Кровать разрушена и убрана из списка",
+  "message.multiplebedspawnpoints.bed_obstructed": "Кровать заблокирована",
+
+  "gui.multiplebedspawnpoints.title": "Кровати возрождения",
+  "gui.multiplebedspawnpoints.empty": "Кроватей пока нет. Нажмите ПКМ по кровати, чтобы добавить её.",
+  "gui.multiplebedspawnpoints.name": "Название кровати",
+  "gui.multiplebedspawnpoints.default_name": "Кровать %s",
+  "gui.multiplebedspawnpoints.location": "%s: %s, %s, %s",
+  "gui.multiplebedspawnpoints.respawn": "Возродиться",
+  "gui.multiplebedspawnpoints.delete": "Удалить",
+  "gui.multiplebedspawnpoints.world_spawn": "На спавн",
+  "gui.multiplebedspawnpoints.status.available": "Доступна",
+  "gui.multiplebedspawnpoints.status.cooldown": "Доступна через %s",
+  "gui.multiplebedspawnpoints.status.obstructed": "Заблокирована",
+
+  "dimension.minecraft.overworld": "Верхний мир",
+  "dimension.minecraft.the_nether": "Незер",
+  "dimension.minecraft.the_end": "Энд"
+}

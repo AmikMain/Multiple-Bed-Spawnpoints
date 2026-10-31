@@ -28,6 +28,14 @@ sourceSets.main.resources {
 
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
+    exclusiveContent {
+        forRepository {
+            maven { url = "https://maven.ryanhcode.dev/releases" }
+        }
+        filter {
+            includeGroupAndSubgroups "dev.ryanhcode"
+        }
+    }
 }
 
 base {
@@ -116,6 +124,10 @@ configurations {
 }
 
 dependencies {
+    // Sable is optional: it is only compiled against, and the compat package only touches it when the mod is loaded.
+    compileOnly("dev.ryanhcode.sable:sable-neoforge-1.21.1:${sable_version}") { transitive = false }
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:${sable_companion_version}") { transitive = false }
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

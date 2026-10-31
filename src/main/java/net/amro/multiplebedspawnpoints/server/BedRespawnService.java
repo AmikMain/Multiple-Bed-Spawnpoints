@@ -290,7 +290,10 @@ public class BedRespawnService {
         SubLevelLink link = bed.subLevel().get();
         ResourceKey<Level> dimension = bed.location().dimension();
         BedEntry updated = switch (support.getState(level, link)) {
-            case SubLevelState.Gone gone -> null;
+            case SubLevelState.Gone gone -> {
+                support.removeLink(level, link);
+                yield null;
+            }
             case SubLevelState.Unloaded unloaded -> bed;
             case SubLevelState.Disassembled disassembled -> {
                 support.removeLink(level, link);

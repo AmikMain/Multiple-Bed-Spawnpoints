@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.amro.multiplebedspawnpoints.compat.SubLevelSupport;
 import net.amro.multiplebedspawnpoints.compat.SubLevelSupport.SubLevelRespawn;

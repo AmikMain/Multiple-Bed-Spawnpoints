@@ -2,7 +2,7 @@ package net.amro.multiplebedspawnpoints.client;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.amro.multiplebedspawnpoints.network.BedListSyncPayload;
 import net.amro.multiplebedspawnpoints.network.BedView;

@@ -1,0 +1,51 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap'
+}
+
+base {
+    archivesName = "${mod_id}-fabric"
+}
+
+// The common module is compiled into this jar, there is no separate jar to depend on at runtime.
+sourceSets.main.java.srcDir(rootProject.file('common/src/main/java'))
+sourceSets.main.resources.srcDir(rootProject.file('common/src/main/resources'))
+
+repositories {
+    maven { url = 'https://maven.parchmentmc.org' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    // Mojang names, the same ones the common and neoforge code is written with.
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+}
+
+loom {
+    runs {
+        configureEach {
+            // Kept apart from run/, which has NeoForge worlds and mods in it.
+            runDir '../run-fabric'
+        }
+    }
+}
+
+var replaceProperties = [
+        mod_id               : mod_id,
+        mod_name             : mod_name,
+        mod_license          : mod_license,
+        mod_version          : mod_version,
+        minecraft_version    : minecraft_version,
+        fabric_loader_version: fabric_loader_version,
+]
+
+processResources {
+    inputs.properties replaceProperties
+    filesMatching('fabric.mod.json') {
+        expand replaceProperties
+    }
+}

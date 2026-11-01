@@ -31,11 +31,11 @@ import net.minecraft.world.phys.Vec3;
  * Only loaded when Sable is installed. Tracking points and player freezing are Sable internals rather than
  * part of its companion API, so {@link #verify()} checks them up front.
  */
-final class SableSupport implements SubLevelSupport {
+public final class SableSupport implements SubLevelSupport {
     // Sable centres a respawning player on the tracking point, which for an anchor is inside a full block.
     private static final double UNLOADED_STAND_UP_HEIGHT = 1.0;
 
-    static void verify() throws ReflectiveOperationException {
+    public static void verify() throws ReflectiveOperationException {
         SubLevelTrackingPointSavedData.class.getMethod("generateTrackingPoint", Vec3.class, ServerSubLevel.class);
         SubLevelTrackingPointSavedData.class.getMethod("take", UUID.class, boolean.class);
         SubLevelTrackingPointSavedData.class.getMethod("getTrackingPoint", UUID.class);

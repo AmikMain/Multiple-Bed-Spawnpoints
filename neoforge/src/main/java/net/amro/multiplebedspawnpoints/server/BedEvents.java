@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -41,7 +42,12 @@ public class BedEvents {
 
     @SubscribeEvent
     static void onPlayerRespawnPosition(PlayerRespawnPositionEvent event) {
-        BedRespawnService.applyPendingRespawn(event);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            DimensionTransition transition = BedRespawnService.usePendingRespawn(player);
+            if (transition != null) {
+                event.setDimensionTransition(transition);
+            }
+        }
     }
 
     @SubscribeEvent

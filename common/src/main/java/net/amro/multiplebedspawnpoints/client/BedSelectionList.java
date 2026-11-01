@@ -11,6 +11,7 @@ import net.amro.multiplebedspawnpoints.network.BedView;
 import net.amro.multiplebedspawnpoints.network.DeleteBedPayload;
 import net.amro.multiplebedspawnpoints.network.RenameBedPayload;
 import net.amro.multiplebedspawnpoints.network.RespawnAtBedPayload;
+import net.amro.multiplebedspawnpoints.platform.ModPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -25,7 +26,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionList.Row> {
     private static final int ROW_HEIGHT = 50;
@@ -130,17 +130,17 @@ public class BedSelectionList extends ContainerObjectSelectionList<BedSelectionL
             String name = this.nameBox.getValue().strip();
             if (!name.equals(this.savedName)) {
                 this.savedName = name;
-                PacketDistributor.sendToServer(new RenameBedPayload(this.bed.id(), name));
+                ModPlatform.get().sendToServer(new RenameBedPayload(this.bed.id(), name));
             }
         }
 
         private void respawn() {
             BedSelectionList.this.screen.onRespawnRequested();
-            PacketDistributor.sendToServer(new RespawnAtBedPayload(this.bed.id()));
+            ModPlatform.get().sendToServer(new RespawnAtBedPayload(this.bed.id()));
         }
 
         private void delete() {
-            PacketDistributor.sendToServer(new DeleteBedPayload(this.bed.id()));
+            ModPlatform.get().sendToServer(new DeleteBedPayload(this.bed.id()));
         }
 
         private Component locationText() {

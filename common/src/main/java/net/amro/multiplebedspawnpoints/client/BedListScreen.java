@@ -7,13 +7,13 @@ import javax.annotation.Nullable;
 import net.amro.multiplebedspawnpoints.network.BedListSyncPayload;
 import net.amro.multiplebedspawnpoints.network.BedView;
 import net.amro.multiplebedspawnpoints.network.RequestBedListPayload;
+import net.amro.multiplebedspawnpoints.platform.ModPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BedListScreen extends Screen {
     private static final int LIST_TOP = 40;
@@ -32,7 +32,7 @@ public class BedListScreen extends Screen {
     public BedListScreen(@Nullable Screen parent) {
         super(Component.translatable("gui.multiplebedspawnpoints.title"));
         this.parent = parent;
-        PacketDistributor.sendToServer(RequestBedListPayload.INSTANCE);
+        ModPlatform.get().sendToServer(RequestBedListPayload.INSTANCE);
     }
 
     @Override

@@ -9,17 +9,16 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import net.amro.multiplebedspawnpoints.Config;
 import net.amro.multiplebedspawnpoints.compat.SubLevelSupport;
 import net.amro.multiplebedspawnpoints.compat.SubLevelSupport.SubLevelRespawn;
 import net.amro.multiplebedspawnpoints.compat.SubLevelSupport.SubLevelState;
 import net.amro.multiplebedspawnpoints.compat.SubLevels;
 import net.amro.multiplebedspawnpoints.data.BedEntry;
-import net.amro.multiplebedspawnpoints.data.ModAttachments;
 import net.amro.multiplebedspawnpoints.data.PlayerBeds;
 import net.amro.multiplebedspawnpoints.data.SubLevelLink;
 import net.amro.multiplebedspawnpoints.network.BedListSyncPayload;
 import net.amro.multiplebedspawnpoints.network.BedView;
+import net.amro.multiplebedspawnpoints.platform.ModPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
@@ -41,8 +40,6 @@ import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.player.PlayerRespawnPositionEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BedRespawnService {
     private static final String BED_MISSING = "message.multiplebedspawnpoints.bed_missing";
@@ -97,7 +94,7 @@ public class BedRespawnService {
             return;
         }
 
-        int maxBeds = Config.MAX_BEDS.get();
+        int maxBeds = ModPlatform.get().maxBeds();
         Component message;
         if (beds.size() >= maxBeds) {
             message = Component.translatable("message.multiplebedspawnpoints.bed_limit", maxBeds);
@@ -133,7 +130,7 @@ public class BedRespawnService {
             views.add(new BedView(bed.id(), bed.name(), placeOf(bed), obstructed, remaining, chargeOf(level, bed, checkable)));
         }
 
-        PacketDistributor.sendToPlayer(player, new BedListSyncPayload(views, Config.MAX_BEDS.get(), messageKey));
+        ModPlatform.get().sendToPlayer(player, new BedListSyncPayload(views, ModPlatform.get().maxBeds(), messageKey));
     }
 
     private static BedView.Place placeOf(BedEntry bed) {
@@ -234,22 +231,25 @@ public class BedRespawnService {
         }
     }
 
-    public static void applyPendingRespawn(PlayerRespawnPositionEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
+    /**
+     * Called from inside PlayerList.respawn, while the player being respawned is still the dead one.
+     *
+     * @return where to put the player if they picked a bed, or null for an ordinary respawn
+     */
+    @Nullable
+    public static DimensionTransition usePendingRespawn(ServerPlayer player) {
+        PendingRespawn pending = PENDING_RESPAWNS.get(player.getUUID());
+        if (pending == null) {
+            return null;
         }
 
-        PendingRespawn pending = PENDING_RESPAWNS.get(player.getUUID());
-        if (pending != null) {
-            event.setDimensionTransition(new DimensionTransition(
-                    pending.level(), pending.position(), Vec3.ZERO, pending.yaw(), 0.0F, DimensionTransition.DO_NOTHING));
-            // This is still the dead player: copyOnDeath carries the data over to the new one.
-            beds(player).markUsed(pending.location(), gameTime(player));
-        }
+        // Written to the dead player: the loader copies this data over to the new one.
+        beds(player).markUsed(pending.location(), gameTime(player));
+        return new DimensionTransition(pending.level(), pending.position(), Vec3.ZERO, pending.yaw(), 0.0F, DimensionTransition.DO_NOTHING);
     }
 
     private static PlayerBeds beds(ServerPlayer player) {
-        return player.getData(ModAttachments.PLAYER_BEDS);
+        return ModPlatform.get().playerBeds(player);
     }
 
     private static long gameTime(ServerPlayer player) {
@@ -257,7 +257,7 @@ public class BedRespawnService {
     }
 
     private static long cooldownTicks() {
-        return Config.RESPAWN_COOLDOWN_SECONDS.get() * 20L;
+        return ModPlatform.get().respawnCooldownSeconds() * 20L;
     }
 
     private static void removeDestroyed(ServerPlayer player, PlayerBeds beds) {

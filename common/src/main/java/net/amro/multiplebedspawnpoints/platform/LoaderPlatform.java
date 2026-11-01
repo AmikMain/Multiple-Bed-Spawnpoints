@@ -1,6 +1,5 @@
 package net.amro.multiplebedspawnpoints.platform;
 
-import net.amro.multiplebedspawnpoints.compat.SubLevelSupport;
 import net.amro.multiplebedspawnpoints.data.PlayerBeds;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +17,5 @@ public interface LoaderPlatform {
 
     void sendToServer(CustomPacketPayload payload);
 
-    /** @return the sub-level integration, or {@link SubLevelSupport#NONE} if there is nothing to integrate with */
-    SubLevelSupport createSubLevelSupport();
+    boolean isModLoaded(String modId);
 }

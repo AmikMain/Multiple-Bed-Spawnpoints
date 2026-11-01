@@ -1,10 +1,7 @@
 package net.amro.multiplebedspawnpoints.server;
 
 import net.amro.multiplebedspawnpoints.MultipleBedSpawnpoints;
-import net.amro.multiplebedspawnpoints.compat.SubLevels;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,12 +28,10 @@ public class BedEvents {
     }
 
     // Sable sets the vanilla spawn without posting PlayerSetSpawnEvent, see BedRespawnService.adoptVanillaSpawn.
-    // Queued so that it runs once the block has handled the click.
     @SubscribeEvent
     static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getEntity() instanceof ServerPlayer player && SubLevels.support().isInPlotGrid(player.level(), event.getPos())) {
-            MinecraftServer server = player.server;
-            server.tell(new TickTask(server.getTickCount(), () -> BedRespawnService.adoptVanillaSpawn(player)));
+        if (event.getEntity() instanceof ServerPlayer player) {
+            BedRespawnService.onBlockUsed(player, event.getPos());
         }
     }
 

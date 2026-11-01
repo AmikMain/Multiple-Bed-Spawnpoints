@@ -23,6 +23,10 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    // Sable is optional: it is only compiled against, and SubLevels only touches it when the mod is loaded.
+    compileOnly("dev.ryanhcode.sable:sable-common-1.21.1:${sable_version}") { transitive = false }
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:${sable_companion_version}") { transitive = false }
 }
 
 loom {
@@ -41,6 +45,7 @@ var replaceProperties = [
         mod_version          : mod_version,
         minecraft_version    : minecraft_version,
         fabric_loader_version: fabric_loader_version,
+        sable_version        : sable_version,
 ]
 
 processResources {

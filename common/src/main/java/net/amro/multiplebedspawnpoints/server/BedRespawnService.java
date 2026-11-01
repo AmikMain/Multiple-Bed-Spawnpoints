@@ -76,13 +76,21 @@ public class BedRespawnService {
 
     /**
      * Moves the player's vanilla spawn into the list. This covers spawns set before the mod handled them, and spawns
-     * on sub-levels: Sable's mixin returns from setRespawnPosition before PlayerSetSpawnEvent is posted, so a click
+     * on sub-levels: Sable's mixin returns from setRespawnPosition before the loader-specific hooks run, so a click
      * on a sub-level bed or anchor only shows up as a changed vanilla spawn.
      */
     public static void adoptVanillaSpawn(ServerPlayer player) {
         BlockPos pos = player.getRespawnPosition();
         if (pos != null && !player.isRespawnForced() && addSpawnBlock(player, player.getRespawnDimension(), pos)) {
             player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
+        }
+    }
+
+    /** Call when a player uses a block. Queued, because the spawn only changes once the block has handled the click. */
+    public static void onBlockUsed(ServerPlayer player, BlockPos pos) {
+        if (SubLevels.support().isInPlotGrid(player.level(), pos)) {
+            MinecraftServer server = player.server;
+            server.tell(new TickTask(server.getTickCount(), () -> adoptVanillaSpawn(player)));
         }
     }
 

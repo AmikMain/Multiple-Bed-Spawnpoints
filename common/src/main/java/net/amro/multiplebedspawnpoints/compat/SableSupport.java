@@ -3,7 +3,7 @@ package net.amro.multiplebedspawnpoints.compat;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.joml.Vector3d;
 import org.joml.Vector3dc;

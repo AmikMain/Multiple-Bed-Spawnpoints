@@ -9,6 +9,9 @@
   "entrypoints": {
     "main": [
       "net.amro.multiplebedspawnpoints.MultipleBedSpawnpointsFabric"
+    ],
+    "client": [
+      "net.amro.multiplebedspawnpoints.client.MultipleBedSpawnpointsFabricClient"
     ]
   },
   "mixins": [
@@ -19,5 +22,8 @@
     "minecraft": "~${minecraft_version}",
     "java": ">=21",
     "fabric-api": "*"
+  },
+  "breaks": {
+    "sable": "<${sable_version}"
   }
 }

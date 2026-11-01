@@ -2,13 +2,8 @@ package net.amro.multiplebedspawnpoints.client;
 
 import java.util.List;
 
-import org.lwjgl.glfw.GLFW;
-
-import com.mojang.blaze3d.platform.InputConstants;
-
 import net.amro.multiplebedspawnpoints.MultipleBedSpawnpoints;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -23,11 +18,7 @@ import net.neoforged.neoforge.common.NeoForge;
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = MultipleBedSpawnpoints.MODID, dist = Dist.CLIENT)
 public class ModClient {
-    private static final KeyMapping OPEN_BED_LIST = new KeyMapping(
-            "key.multiplebedspawnpoints.open_bed_list",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_N,
-            "key.categories.multiplebedspawnpoints");
+    private static final KeyMapping OPEN_BED_LIST = BedListKey.create();
 
     public ModClient(IEventBus modEventBus, ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -41,13 +32,9 @@ public class ModClient {
         event.register(OPEN_BED_LIST);
     }
 
+    // NeoForge refuses connections to servers without the mod, so the list can always be used here.
     private static void onClientTick(ClientTickEvent.Post event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        while (OPEN_BED_LIST.consumeClick()) {
-            if (minecraft.screen == null && minecraft.player != null) {
-                minecraft.setScreen(new BedListScreen(null));
-            }
-        }
+        BedListKey.handlePresses(OPEN_BED_LIST, true);
     }
 
     private static void onScreenInit(ScreenEvent.Init.Post event) {

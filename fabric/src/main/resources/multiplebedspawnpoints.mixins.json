@@ -4,6 +4,7 @@
   "package": "net.amro.multiplebedspawnpoints.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "PlayerListMixin",
     "ServerPlayerMixin"
   ],
   "injectors": {

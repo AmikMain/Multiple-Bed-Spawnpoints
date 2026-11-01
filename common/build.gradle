@@ -6,6 +6,12 @@ base {
     archivesName = "${mod_id}-common"
 }
 
+dependencies {
+    // Sable is optional: it is only compiled against, and SubLevels only touches it when the mod is loaded.
+    compileOnly("dev.ryanhcode.sable:sable-common-1.21.1:${sable_version}") { transitive = false }
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:${sable_companion_version}") { transitive = false }
+}
+
 // Compiles against vanilla Minecraft only, so loader-specific code cannot end up in here by accident.
 neoForge {
     neoFormVersion = project.neo_form_version

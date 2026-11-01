@@ -1,0 +1,17 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+base {
+    archivesName = "${mod_id}-common"
+}
+
+// Compiles against vanilla Minecraft only, so loader-specific code cannot end up in here by accident.
+neoForge {
+    neoFormVersion = project.neo_form_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+}

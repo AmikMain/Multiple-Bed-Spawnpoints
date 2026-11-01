@@ -9,12 +9,14 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
 import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.companion.SableCompanion;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.ryanhcode.sable.mixinterface.player_freezing.PlayerFreezeExtension;
 import dev.ryanhcode.sable.network.packets.tcp.ClientboundFreezePlayerPacket;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
+import dev.ryanhcode.sable.sublevel.storage.holding.SubLevelHoldingChunkMap;
 import dev.ryanhcode.sable.sublevel.tracking_points.SubLevelTrackingPointSavedData;
 import dev.ryanhcode.sable.sublevel.tracking_points.TrackingPoint;
 import net.amro.multiplebedspawnpoints.data.SubLevelLink;
@@ -38,6 +40,8 @@ final class SableSupport implements SubLevelSupport {
         SubLevelTrackingPointSavedData.class.getMethod("take", UUID.class, boolean.class);
         SubLevelTrackingPointSavedData.class.getMethod("getTrackingPoint", UUID.class);
         SubLevelTrackingPointSavedData.class.getMethod("removeTrackingPoint", UUID.class);
+        ServerSubLevelContainer.class.getMethod("getHoldingChunkMap");
+        SubLevelHoldingChunkMap.class.getMethod("getHoldingSubLevel", UUID.class);
         PlayerFreezeExtension.class.getMethod("sable$freezeTo", UUID.class, Vector3dc.class);
         ClientboundFreezePlayerPacket.class.getConstructor(UUID.class, Vector3dc.class);
     }
@@ -83,10 +87,20 @@ final class SableSupport implements SubLevelSupport {
         }
 
         SubLevel subLevel = Sable.HELPER.getContaining(level, point.point());
-        if (subLevel == null) {
-            return new SubLevelState.Unloaded();
+        if (subLevel != null) {
+            return new SubLevelState.Loaded(pos, nameOf(subLevel), worldPos(subLevel, pos));
         }
-        return new SubLevelState.Loaded(pos, nameOf(subLevel), worldPos(subLevel, pos));
+        return isStored(level, point) ? new SubLevelState.Unloaded() : new SubLevelState.Gone();
+    }
+
+    // Unloading saves a sub-level, and saving gives its tracking points a pointer. A sub-level that was removed
+    // before its first save leaves points behind that Sable never updates, still marked as in a sub-level.
+    private static boolean isStored(ServerLevel level, TrackingPoint point) {
+        if (point.lastSavedSubLevelPointer() != null) {
+            return true;
+        }
+        return point.subLevelID() != null
+                && ServerSubLevelContainer.getContainer(level).getHoldingChunkMap().getHoldingSubLevel(point.subLevelID()) != null;
     }
 
     @Override
@@ -103,7 +117,8 @@ final class SableSupport implements SubLevelSupport {
 
         // Not removing the point: unlike Sable's single respawn point, list entries are used again and again.
         SubLevelTrackingPointSavedData.TakenLoginPoint taken = trackingPoints.take(link.trackingPoint(), false);
-        if (taken == null) {
+        // Without a sub-level id, take() fell back to the placeholder it keeps for logging in: where the bed once was.
+        if (taken == null || taken.subLevelId() == null) {
             return Optional.empty();
         }
 
